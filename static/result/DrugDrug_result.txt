@@ -1,0 +1,1 @@
+b'User_input/ori_input/DDI_test.tsv\n09/11/2020 03:20:36 Loaded 5 ddi2013-type test samples\n09/11/2020 03:20:36 done with ddi2013-type\n09/11/2020 03:20:37 Task ddi\ndl/User_input/prepro_result/ddi_test.tsv\n09/11/2020 03:20:37 dl/User_input/prepro_result/bert_base_uncased/ddi_test.json\n'
