@@ -1,0 +1,3 @@
+0	CPR:false	In defects of BC6ENTG , BC6OTHER is transformed to BC6ENTC , resulting in high levels of BC6OTHER in the body.
+1	CPR:false	In defects of BC6ENTG , BC6OTHER is transformed to BC6OTHER , resulting in high levels of BC6ENTC in the body.
+2	CPR:9	Once formed, the molecule can be converted to BC6ENTC by BC6ENTG ( BC6OTHER ).
