@@ -8,7 +8,7 @@ import subprocess
 from predict_temp import chem_dis_func, drug2_func, gene_dis_func, return_result_ddi, return_result_gad, return_result_chemprot
 from werkzeug.utils import redirect, secure_filename
 
-UPLOAD_DIR = "static/result/"
+UPLOAD_DIR = "./build/static/result/"
 INPUT_DIR = "dl/User_input/ori_input"
 app = Flask(__name__, static_folder='./build', static_url_path='/')
 app.config['UPLOAD_DIR'] = UPLOAD_DIR
@@ -77,7 +77,7 @@ def save_file(request):
 
     return fname, input_file_path
 
-@app.route('/api/chemical-disease', methods=['GET', 'POST'])
+@app.route('/api/chemical-disease', methods=['POST'])
 def chemical_disease():
     fname, input_file_path = save_file(request)
     try:
@@ -87,8 +87,14 @@ def chemical_disease():
         result = return_result_chemprot(input_file_path, output_file_path)  
         
         performance = model_performance_chemprot()
+        data = {
+            "result": result,
+            "performance": performance,
+            "file_path": output_file_path, 
+            "file_name": output_file_name
+        }
 
-        return jsonify({"result": result, "performance": performance})
+        return jsonify(data)
     except:
         return {"message": "An error eccurred inserting the item."}, 500 # Internal server error
 
@@ -104,7 +110,14 @@ def drug_drug():
         
         performance = model_performance_ddi()
 
-        return jsonify({"result": result, "performance": performance})
+        data = {
+            "result": result,
+            "performance": performance,
+            "file_path": output_file_path, 
+            "file_name": output_file_name
+        }
+
+        return jsonify(data)
     except:
         return {"message": "An error eccurred inserting the item."}, 500 # Internal server error
 
@@ -119,7 +132,14 @@ def gene_disease():
         
         performance = model_performance_gad()
 
-        return jsonify({"result": result, "performance": performance})
+        data = {
+            "result": result,
+            "performance": performance,
+            "file_path": output_file_path, 
+            "file_name": output_file_name
+        }
+
+        return jsonify(data)
     except:
         return {"message": "An error eccurred inserting the item."}, 500 # Internal server error
 
