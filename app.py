@@ -2,22 +2,25 @@ import os
 import shutil
 import json
 from flask_bootstrap import Bootstrap
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, jsonify, redirect, url_for
 from flask_cors import CORS
 import subprocess
 from predict_temp import chem_dis_func, drug2_func, gene_dis_func, return_result_ddi, return_result_gad, return_result_chemprot
 from werkzeug.utils import redirect, secure_filename
 
-UPLOAD_DIR = "./build/static/result/"
+UPLOAD_DIR = "static/result/"
 INPUT_DIR = "dl/User_input/ori_input"
-app = Flask(__name__, static_folder='./build', static_url_path='/')
+OUTPUT_DIR = 'static/result/'
+# app = Flask(__name__, static_folder='./build', static_url_path='/')
+app = Flask(__name__)
 app.config['UPLOAD_DIR'] = UPLOAD_DIR
 app.config['INPUT_DIR'] = INPUT_DIR
+app.config['OUTPUT_DIR'] = OUTPUT_DIR
 CORS(app)
 Bootstrap(app)
 file_path = "result/"
 app.config['FLAG'] = 'not Ready'  
-app.config['OUTPUT_DIR'] = 'static/result/'
+
 
 @app.route('/')
 def home():
@@ -30,6 +33,9 @@ def predict_ddi(input_file):
                          stderr=subprocess.PIPE,
                          stdin=subprocess.PIPE)
     out, err = p.communicate()
+    print('out:', out)
+    print('err:', err)
+    return out, err
 
 def predict_chemprot(input_file):
     filename = input_file.split('.')[0]
@@ -38,15 +44,20 @@ def predict_chemprot(input_file):
                          stderr=subprocess.PIPE,
                          stdin=subprocess.PIPE)
     out, err = p.communicate()
+    print('out:', out)
+    print('err:', err)
+    return out, err
     
 def predict_gad(input_file):
     filename = input_file.split('.')[0]+'.json'
-    print("filename: "+filename)
     cmd = ["sh", "dl/predict_GAD.sh", "User_input/ori_input/"+input_file]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE,
                          stdin=subprocess.PIPE)
     out, err = p.communicate()
+    print('out:', out)
+    print('err:', err)
+    return out, err
 
 def model_performance_gad():
     with open('dl/model_result/gad_result.json') as json_file:
@@ -81,10 +92,10 @@ def save_file(request):
 def chemical_disease():
     fname, input_file_path = save_file(request)
     try:
-        predict_chemprot(fname)
+        # out, err = predict_chemprot(fname)
         output_file_name = "Chem_Dis_result_" + fname
         output_file_path = app.config['OUTPUT_DIR'] + output_file_name
-        result = return_result_chemprot(input_file_path, output_file_path)  
+        result = return_result_chemprot(input_file_path, output_file_path)
         
         performance = model_performance_chemprot()
         data = {
@@ -98,12 +109,11 @@ def chemical_disease():
     except:
         return {"message": "An error eccurred inserting the item."}, 500 # Internal server error
 
-
 @app.route('/api/drug-drug', methods=['POST'])
 def drug_drug():
     fname, input_file_path = save_file(request)
     try:
-        predict_ddi(fname)  
+        # out, err = predict_ddi(fname)  
         output_file_name = "Drug_Drug_result_"+fname
         output_file_path = app.config['OUTPUT_DIR'] + output_file_name
         result = return_result_ddi(input_file_path, output_file_path)
@@ -125,7 +135,7 @@ def drug_drug():
 def gene_disease():
     fname, input_file_path = save_file(request)
     try:
-        predict_gad(fname)
+        # out, err = predict_gad(fname)
         output_file_name = "Gene_Dis_result_"+fname
         output_file_path = app.config['OUTPUT_DIR'] + output_file_name
         result = return_result_gad(input_file_path, output_file_path)  
@@ -142,7 +152,6 @@ def gene_disease():
         return jsonify(data)
     except:
         return {"message": "An error eccurred inserting the item."}, 500 # Internal server error
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

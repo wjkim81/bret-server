@@ -1,0 +1,19 @@
+chemprotnew:
+  data_format: PremiseOnly
+  encoder_type: BERT
+  dropout_p: 0.1
+  enable_san: false
+  labels:
+  - CPR:3
+  - CPR:4
+  - CPR:5
+  - CPR:6
+  - CPR:9
+  - CPR:false
+  metric_meta:
+  - PRF
+  loss: CeCriterion
+  kd_loss: MseCriterion
+  n_class: 6
+  task_type: Classification
+  task_weight: 6
