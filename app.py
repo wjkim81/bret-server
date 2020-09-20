@@ -8,15 +8,15 @@ import subprocess
 from predict_temp import chem_dis_func, drug2_func, gene_dis_func, return_result_ddi, return_result_gad, return_result_chemprot
 from werkzeug.utils import redirect, secure_filename
 
-UPLOAD_DIR = "static/result/"
+UPLOAD_DIR = "./build/static/result/"
 INPUT_DIR = "dl/User_input/ori_input"
-OUTPUT_DIR = 'static/result/'
-# app = Flask(__name__, static_folder='./build', static_url_path='/')
-app = Flask(__name__)
+OUTPUT_DIR = './build/static/result/'
+app = Flask(__name__, static_folder='./build', static_url_path='/')
+# app = Flask(__name__)
 app.config['UPLOAD_DIR'] = UPLOAD_DIR
 app.config['INPUT_DIR'] = INPUT_DIR
 app.config['OUTPUT_DIR'] = OUTPUT_DIR
-CORS(app)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 Bootstrap(app)
 file_path = "result/"
 app.config['FLAG'] = 'not Ready'  
@@ -25,6 +25,10 @@ app.config['FLAG'] = 'not Ready'
 @app.route('/')
 def home():
     return app.send_static_file('index.html')
+
+@app.errorhandler(404)
+def not_found(e):
+  return app.send_static_file('index.html')
 
 def predict_ddi(input_file):
     filename = input_file.split('.')[0]
@@ -98,10 +102,12 @@ def chemical_disease():
         result = return_result_chemprot(input_file_path, output_file_path)
         
         performance = model_performance_chemprot()
+
+        static_file_path = output_file_path.replace('./build/', '')
         data = {
             "result": result,
             "performance": performance,
-            "file_path": output_file_path, 
+            "file_path": static_file_path, 
             "file_name": output_file_name
         }
 
@@ -116,14 +122,21 @@ def drug_drug():
         # out, err = predict_ddi(fname)  
         output_file_name = "Drug_Drug_result_"+fname
         output_file_path = app.config['OUTPUT_DIR'] + output_file_name
+
+        print('output_file_path:', output_file_path)
+        print('output_file_name:', output_file_name)
+        
         result = return_result_ddi(input_file_path, output_file_path)
         
         performance = model_performance_ddi()
 
+        static_file_path = output_file_path.replace('./build/', '')
+        print('static_file_path:', static_file_path)
+
         data = {
             "result": result,
             "performance": performance,
-            "file_path": output_file_path, 
+            "file_path": static_file_path, 
             "file_name": output_file_name
         }
 
@@ -141,11 +154,12 @@ def gene_disease():
         result = return_result_gad(input_file_path, output_file_path)  
         
         performance = model_performance_gad()
+        static_file_path = output_file_path.replace('./build/', '')
 
         data = {
             "result": result,
             "performance": performance,
-            "file_path": output_file_path, 
+            "file_path": static_file_path, 
             "file_name": output_file_name
         }
 
@@ -154,4 +168,4 @@ def gene_disease():
         return {"message": "An error eccurred inserting the item."}, 500 # Internal server error
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5050, debug=True)
